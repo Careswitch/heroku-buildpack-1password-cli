@@ -1,0 +1,1 @@
+export PATH="$HOME/vendor/1password:$PATH"

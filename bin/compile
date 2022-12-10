@@ -4,15 +4,28 @@
 # Fail fast
 set -e
 
-BUILD_DIR=$1
-VENDOR_DIR="$BUILD_DIR/vendor"
-PROFILE_PATH="$BUILD_DIR/.profile.d/1password.sh"
+BUILD_DIR=${1:-}
+CACHE_DIR=${2:-}
+ENV_DIR=${3:-}
+BP_DIR=$(cd $(dirname ${0:-}); cd ..; pwd)
+VENDOR_DIR="$BUILD_DIR/vendor/1password/"
 
 mkdir -p $VENDOR_DIR
-mkdir -p $(dirname $PROFILE_PATH)
+
+### Load dependencies
+
+source $BP_DIR/lib/environment.sh
+
+### Compile
+
+create_env() {
+  write_profile "$BP_DIR" "$BUILD_DIR"
+  write_export "$BP_DIR" "$BUILD_DIR"
+}
+
+echo "-----> Creating runtime environment"
+create_env
 
 echo "-----> Fetching and vendoring 1Password CLI"
 echo "       Using version: 2.7.2"
-curl -sSfo op.zip https://cache.agilebits.com/dist/1P/op2/pkg/v2.7.2/op_linux_amd64_v2.7.2.zip && unzip -od "$VENDOR_DIR/" op.zip && rm op.zip
-
-echo "export PATH=\$PATH:/app/vendor" >> $PROFILE_PATH
+curl -sSfo op.zip https://cache.agilebits.com/dist/1P/op2/pkg/v2.7.2/op_linux_amd64_v2.7.2.zip && unzip -od "$VENDOR_DIR" op.zip && rm op.zip
